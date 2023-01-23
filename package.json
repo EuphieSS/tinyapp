@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/EuphieSS/tinyapp/issues"
   },
-  "homepage": "https://github.com/EuphieSS/tinyapp#readme"
+  "homepage": "https://github.com/EuphieSS/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
