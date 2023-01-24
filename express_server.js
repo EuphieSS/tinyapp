@@ -11,10 +11,23 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+function generateRandomString(length) {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
+
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
-})
+  let shortURL = generateRandomString(6); //generate a random 6 character long id
+  urlDatabase[shortURL] = req.body.longURL; //add data submission (long URL) to urlDatabase
+  const templateVars = { id: shortURL, longURL: urlDatabase[shortURL] };
+  res.redirect(`/urls/${templateVars.id}`); //redirect client to a new page that shows the new short url created
+});
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
@@ -38,9 +51,9 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
+// app.get("/hello", (req, res) => {
+//   res.send("<html><body>Hello <b>World</b></body></html>\n");
+// });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
