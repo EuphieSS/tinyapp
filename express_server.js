@@ -22,14 +22,20 @@ function generateRandomString(length) {
 };
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
+  // console.log(req.body); // Log the POST request body to the console
   let shortURL = generateRandomString(6); //generate a random 6 character long id
   urlDatabase[shortURL] = req.body.longURL; //add data submission (long URL) to urlDatabase
   const templateVars = { id: shortURL, longURL: urlDatabase[shortURL] };
   res.redirect(`/urls/${templateVars.id}`); //redirect client to a new page that shows the new short url created
 });
 
-app.post("/urls/:id/delete", (req, res) => {
+app.post("/urls/:id", (req, res) => {
+  console.log(req.params.id);
+  urlDatabase[req.params.id] = req.body.longURL;
+  res.redirect("/urls");
+});
+
+app.post("/urls/:id/delete", (req, res) => { //post path === form action in urls_index.ejs
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
