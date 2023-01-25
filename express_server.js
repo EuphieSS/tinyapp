@@ -21,7 +21,7 @@ function generateRandomString(length) {
   return result;
 };
 
-app.post("/urls", (req, res) => {
+app.post("/urls", (req, res) => { //GENERATE NEW SHORT URL
   // console.log(req.body); // Log the POST request body to the console
   let shortURL = generateRandomString(6); //generate a random 6 character long id
   urlDatabase[shortURL] = req.body.longURL; //add data submission (long URL) to urlDatabase
@@ -29,14 +29,20 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${templateVars.id}`); //redirect client to a new page that shows the new short url created
 });
 
-app.post("/urls/:id", (req, res) => {
-  console.log(req.params.id);
-  urlDatabase[req.params.id] = req.body.longURL;
+app.post("/login", (req, res) => { //SET COOKIE FOR LOGIN
+  console.log(req.body);
+  res.cookie("username", req.body.username);
+  res.redirect("/urls");
+});
+
+app.post("/urls/:id", (req, res) => { //UPDATE EXISTING LONG URL
+  // console.log(req.params.id);
+  urlDatabase[req.params.id] = req.body.longURL; //assign new longURL to shortURL
   res.redirect("/urls");
 });
 
 app.post("/urls/:id/delete", (req, res) => { //post path === form action in urls_index.ejs
-  delete urlDatabase[req.params.id];
+  delete urlDatabase[req.params.id];         //DELETE A SUBMISSION
   res.redirect("/urls");
 });
 
