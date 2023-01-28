@@ -39,6 +39,16 @@ app.post("/logout", (req, res) => { //DELETE COOKIE ONCE LOGGED OUT
   res.redirect("/urls");
 });
 
+///////////// /REGISTER /////////////
+
+app.get("/register", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"]
+  };
+  res.render("urls_registration", templateVars);
+});
+
+
 ///////////// /URLS /////////////
 
 app.post("/urls", (req, res) => { //GENERATE NEW SHORT URL
