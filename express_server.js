@@ -11,13 +11,19 @@ app.use(cookieParser());
 ///////////// DATABASES /////////////
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const userDatabase = {
-  "ab123": {
-    id: "ab123",
+  "aJ48lW": {
+    id: "aJ48lW",
     email: "user@example.com",
     password: "monkeytype",
   }
@@ -101,7 +107,7 @@ app.get("/register", (req, res) => { //DISPLAY A REGISTRATION FORM
 });
 
 app.post("/register", (req, res) => { //ADD NEW USER OBJECT TO THE USERDATABASE
-  const userId = generateRandomString(5); //generate a random 5 character long id
+  const userId = generateRandomString(6); //generate a random 5 character long id
   const email = req.body.email;
   const password = req.body.password;
   const existingUser = findUserByEmail(email, userDatabase); //check if user already exist by email
@@ -133,8 +139,10 @@ app.post("/urls", (req, res) => { //GENERATE NEW SHORT URL
   }
 
   const shortURL = generateRandomString(6); //generate a random 6 character long id
-  urlDatabase[shortURL] = req.body.longURL; //add data submission (long URL) to urlDatabase
-  const templateVars = { id: shortURL, longURL: urlDatabase[shortURL] };
+  const longURL = req.body.longURL;
+  const userID = req.cookies["user_id"];
+  urlDatabase[shortURL] = { longURL, userID }; //add data submission (long URL) and current user's id to urlDatabase
+  const templateVars = { id: shortURL/*, longURL: urlDatabase[shortURL].longURL*/ };
   res.redirect(`/urls/${templateVars.id}`); //redirect client to a new page that shows the new short url created
 
 });
@@ -173,14 +181,14 @@ app.post("/urls/:id/delete", (req, res) => { //post path === form action in urls
 
 app.post("/urls/:id", (req, res) => { //UPDATE EXISTING LONG URL
   // console.log(req.params.id);
-  urlDatabase[req.params.id] = req.body.longURL; //assign new longURL to shortURL
+  urlDatabase[req.params.id].longURL = req.body.longURL; //assign new longURL to shortURL
   res.redirect("/urls");
 });
 
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].longURL,
     user: userDatabase[req.cookies["user_id"]]
   };
   res.render("urls_show", templateVars);
@@ -194,7 +202,7 @@ app.get("/u/:id", (req, res) => {
     return;
   }
 
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
   res.redirect(longURL);
 
 });
