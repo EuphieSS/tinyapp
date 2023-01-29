@@ -46,11 +46,11 @@ app.post("/login", (req, res) => {
   const existingUser = findUserByEmail(email, userDatabase); //check if user already exist by email
   
   if (!existingUser) {
-    res.status(403).send("403 error! Information entered is incorrect, please try again.");
+    res.send("Information entered is incorrect, please try again.");
   }
   
   if (!bcrypt.compareSync(password, existingUser.password)) { //if user exists but password does not match
-    res.status(403).send("403 error! Information entered is incorrect, please try again.");
+    res.send("Information entered is incorrect, please try again.");
   } else {
     req.session.user_id = existingUser.id; //set cookie for login
     res.redirect("/urls");
@@ -59,7 +59,7 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/login", (req, res) => { //DISPLAY A LOGIN FORM
-  if (req.session.user_id) {
+  if (req.session.user_id) { //if user is already logged in
     res.redirect("/urls");
     return;
   }
@@ -100,17 +100,17 @@ app.post("/register", (req, res) => { //ADD NEW USER OBJECT TO THE USERDATABASE
   const existingUser = findUserByEmail(email, userDatabase); //check if user already exist by email
   
   if (email === "" || password === "") {
-    res.status(400).send("400 error! Please ensure your information is correct.");
+    res.send("Please ensure your information is correct.");
   }
   
   if (existingUser) { //if user exists
-    res.status(400).send("400 error! Invalid information, please try again.");
+    res.send("Invalid information, please try again.");
   } else {
     userDatabase[userId] = {
       id: userId,
       email,
       password: bcrypt.hashSync(password, 10)
-    }
+    };
     req.session.user_id = userId;
     res.redirect("/urls");
   }
@@ -129,7 +129,7 @@ app.post("/urls", (req, res) => { //GENERATE NEW SHORT URL
   const longURL = req.body.longURL;
   const userID = req.session.user_id;
   urlDatabase[shortURL] = { longURL, userID }; //add data submission (long URL) and current user's id to urlDatabase
-  const templateVars = { id: shortURL/*, longURL: urlDatabase[shortURL].longURL*/ };
+  const templateVars = { id: shortURL };
   res.redirect(`/urls/${templateVars.id}`); //redirect client to a new page that shows the new short url created
 
 });
@@ -181,7 +181,7 @@ app.post("/urls/:id/delete", (req, res) => { //post path === form action in urls
 
 });
 
-///////////// /URLS/:ID ROUTE /////////////
+///////////// /URLS/:ID ROUTES /////////////
 
 app.post("/urls/:id", (req, res) => { //UPDATE EXISTING LONG URL
   const existingURLId = urlDatabase[req.params.id];
@@ -201,7 +201,7 @@ app.post("/urls/:id", (req, res) => { //UPDATE EXISTING LONG URL
 
 app.get("/urls/:id", (req, res) => {
   if (!req.session.user_id) { //check if user is logged in
-    res.send("Pleas log in or register first.");
+    res.send("Please log in or register first.");
     return;
   }
 
@@ -219,7 +219,7 @@ app.get("/urls/:id", (req, res) => {
 
 });
 
-///////////// /U/:ID /////////////
+///////////// /U/:ID ROUTE /////////////
 
 app.get("/u/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
@@ -232,13 +232,18 @@ app.get("/u/:id", (req, res) => {
 
 });
 
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
+///////////// / ROUTE /////////////
 
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
+app.get("/", (req, res) => {
+  if (!req.session.user_id) {
+    res.redirect("/login");
+    return;
+  }
+
+  res.redirect("/urls");
+});
+
+///////////// PORT LISTENING /////////////
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

@@ -7,28 +7,28 @@ const { findUserByEmail, urlsForUser } = require('../helpers.js');
 
 const testUsers = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
   "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 };
 
 describe('getUserByEmail', function() {
   it('should return a user with valid email', function() {
-    const user = findUserByEmail("user@example.com", testUsers)
+    const user = findUserByEmail("user@example.com", testUsers);
     const expectedUserID = "userRandomID";
-    assert.equal(user.id, expectedUserID)
+    assert.equal(user.id, expectedUserID);
   });
 
   it('should return undefined if email is not in database', function() {
-    const user = findUserByEmail("user@random.com", testUsers)
+    const user = findUserByEmail("user@random.com", testUsers);
     const expectedUserID = undefined;
-    assert.equal(user, expectedUserID)
+    assert.equal(user, expectedUserID);
   });
 
 });
@@ -49,7 +49,7 @@ const testUrlDatabase = {
 
 describe('urlsForUser', function() {
   it('should return a list of urls with valid user id', function() {
-    const urls = urlsForUser("aJ48lW", testUrlDatabase)
+    const urls = urlsForUser("aJ48lW", testUrlDatabase);
     const expectedOutput = {
       b6UTxQ: {
         longURL: "https://www.tsn.ca",
@@ -60,13 +60,13 @@ describe('urlsForUser', function() {
         userID: "aJ48lW",
       },
     };
-    assert.deepEqual(urls, expectedOutput)
+    assert.deepEqual(urls, expectedOutput);
   });
 
   it('should return an empty object if user id does not match', function() {
-    const urls = urlsForUser("bS4el3", testUrlDatabase)
+    const urls = urlsForUser("bS4el3", testUrlDatabase);
     const expectedOutput = {};
-    assert.deepEqual(urls, expectedOutput)
+    assert.deepEqual(urls, expectedOutput);
   });
 
 });
