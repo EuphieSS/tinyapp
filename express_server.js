@@ -189,15 +189,37 @@ app.get("/urls/new", (req, res) => {
 ///////////// /URLS/:ID/DELETE ROUTE /////////////
 
 app.post("/urls/:id/delete", (req, res) => { //post path === form action in urls_index.ejs
-  delete urlDatabase[req.params.id];         //DELETE A SUBMISSION
-  res.redirect("/urls");
+  const existingURLId = urlDatabase[req.params.id];
+  if (existingURLId === undefined) {
+    res.send("Invalid URL.");
+    return;
+  }
+
+  if (existingURLId.userID === req.cookies["user_id"]) {
+    delete urlDatabase[req.params.id]; //DELETE A SUBMISSION
+    res.redirect("/urls");
+  } else {
+    res.send("Access not permitted.");
+  }
+
 });
 
 ///////////// /URLS/:ID ROUTE /////////////
 
 app.post("/urls/:id", (req, res) => { //UPDATE EXISTING LONG URL
-  urlDatabase[req.params.id].longURL = req.body.longURL; //assign new longURL to shortURL
-  res.redirect("/urls");
+  const existingURLId = urlDatabase[req.params.id];
+  if (existingURLId === undefined) {
+    res.send("Invalid URL.");
+    return;
+  }
+
+  if (existingURLId.userID === req.cookies["user_id"]) {
+    urlDatabase[req.params.id].longURL = req.body.longURL; //assign new longURL to shortURL
+    res.redirect("/urls");
+  } else {
+    res.send("Access not permitted.");
+  }
+
 });
 
 app.get("/urls/:id", (req, res) => {
