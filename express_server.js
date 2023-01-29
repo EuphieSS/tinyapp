@@ -25,7 +25,7 @@ const userDatabase = {
 
 ///////////// HELPER FUNCTIONS /////////////
 
-function generateRandomString(length) {
+const generateRandomString = (length) => {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const charactersLength = characters.length;
@@ -33,6 +33,15 @@ function generateRandomString(length) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
+};
+
+const findUserByEmail = (email, database) => {
+  for (const id in database) {
+    if (email === database[id].email) {
+      return database[id];
+    }
+  }
+  return null;
 };
 
 ///////////// /LOGIN ROUTES /////////////
@@ -64,14 +73,21 @@ app.post("/register", (req, res) => { //ADD NEW USER OBJECT TO THE USERDATABASE
   const userId = generateRandomString(5); //generate a random 5 character long id
   const email = req.body.email;
   const password = req.body.password;
-  userDatabase[userId] = {
-    id: userId,
-    email,
-    password
+  const existingUser = findUserByEmail(email, userDatabase);
+  if (email === "" || password === "") {
+    res.status(400).send("400 error! Please ensure your information is correct.");
   }
-  res.cookie("user_id", userId);
-  console.log(userDatabase);
-  res.redirect("/urls");
+  if (existingUser) {
+    res.status(400).send("400 error! Invalid information, please try again.");
+  } else {
+    userDatabase[userId] = {
+      id: userId,
+      email,
+      password
+    }
+    res.cookie("user_id", userId);
+    res.redirect("/urls");
+  }
 });
 
 ///////////// /URLS ROUTES /////////////
