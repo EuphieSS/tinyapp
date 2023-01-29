@@ -52,6 +52,13 @@ app.post("/login", (req, res) => { //SET COOKIE FOR LOGIN
   res.redirect("/urls");
 });
 
+app.get("/login", (req, res) => { //DISPLAY A LOGIN FORM
+  const templateVars = {
+    user: userDatabase[req.cookies["user_id"]]
+  };
+  res.render("urls_login", templateVars);
+});
+
 ///////////// /LOGOUT ROUTES /////////////
 
 app.post("/logout", (req, res) => { //DELETE COOKIE ONCE LOGGED OUT
@@ -73,11 +80,11 @@ app.post("/register", (req, res) => { //ADD NEW USER OBJECT TO THE USERDATABASE
   const userId = generateRandomString(5); //generate a random 5 character long id
   const email = req.body.email;
   const password = req.body.password;
-  const existingUser = findUserByEmail(email, userDatabase);
+  const existingUser = findUserByEmail(email, userDatabase); //check if user already exist by email
   if (email === "" || password === "") {
     res.status(400).send("400 error! Please ensure your information is correct.");
   }
-  if (existingUser) {
+  if (existingUser) { //if user exists
     res.status(400).send("400 error! Invalid information, please try again.");
   } else {
     userDatabase[userId] = {
