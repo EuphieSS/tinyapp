@@ -50,6 +50,16 @@ const findUserByEmail = (email, database) => {
   return null;
 };
 
+const urlsForUser = (id, database) => {
+  const userURLs = {};
+  for (const url in database) {
+    if (id === database[url].userID) {
+      userURLs[url] = database[url];
+    }
+  }
+  return userURLs;
+};
+
 ///////////// /LOGIN ROUTES /////////////
 
 app.post("/login", (req, res) => {
@@ -134,7 +144,7 @@ app.post("/register", (req, res) => { //ADD NEW USER OBJECT TO THE USERDATABASE
 
 app.post("/urls", (req, res) => { //GENERATE NEW SHORT URL
   if (!req.cookies["user_id"]) {
-    res.send("Pleas login first.");
+    res.send("Pleas log in first.");
     return;
   }
 
@@ -148,11 +158,17 @@ app.post("/urls", (req, res) => { //GENERATE NEW SHORT URL
 });
 
 app.get("/urls", (req, res) => {
-    const templateVars = {
-      urls: urlDatabase,
-      user: userDatabase[req.cookies["user_id"]]
-    };
-    res.render("urls_index", templateVars);
+  if (!req.cookies["user_id"]) {
+    res.send("Pleas log in or register first.");
+    return;
+  }
+
+  const templateVars = {
+    urls: urlsForUser(req.cookies["user_id"], urlDatabase),
+    user: userDatabase[req.cookies["user_id"]]
+  };
+  res.render("urls_index", templateVars);
+
 });
 
 ///////////// /URLS/NEW ROUTE /////////////
@@ -180,12 +196,23 @@ app.post("/urls/:id/delete", (req, res) => { //post path === form action in urls
 ///////////// /URLS/:ID ROUTE /////////////
 
 app.post("/urls/:id", (req, res) => { //UPDATE EXISTING LONG URL
-  // console.log(req.params.id);
   urlDatabase[req.params.id].longURL = req.body.longURL; //assign new longURL to shortURL
   res.redirect("/urls");
 });
 
 app.get("/urls/:id", (req, res) => {
+  const currentUser = req.cookies["user_id"];
+  const urlOwner = urlDatabase[req.params.id].userID;
+  if (!currentUser) {
+    res.send("Pleas log in or register first.");
+    return;
+  }
+
+  if (currentUser !== urlOwner) {
+    res.send("Sorry, information not accessible.");
+    return;
+  }
+
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id].longURL,
