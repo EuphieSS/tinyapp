@@ -6,8 +6,10 @@ This version is built by Samma Su for her study at Lighthouse Labs, as an exerci
 
 ## Final Product
 
-!["screenshot description"](#)
-!["screenshot description"](#)
+!["My URLs Page"](https://github.com/EuphieSS/tinyapp/blob/master/docs/urls-page.png?raw=true)
+!["Create New URL Page"](https://github.com/EuphieSS/tinyapp/blob/master/docs/create-new-url-page.png?raw=true)
+!["Edit URL Page"](https://github.com/EuphieSS/tinyapp/blob/master/docs/update-url-page.png?raw=true)
+!["Login Page"](https://github.com/EuphieSS/tinyapp/blob/master/docs/login-page.png?raw=true)
 
 ## Dependencies
 
