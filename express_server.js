@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
+const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -25,7 +26,7 @@ const userDatabase = {
   "aJ48lW": {
     id: "aJ48lW",
     email: "user@example.com",
-    password: "monkeytype",
+    password: bcrypt.hashSync("monkeytype", 10)
   }
 };
 
@@ -71,7 +72,7 @@ app.post("/login", (req, res) => {
     res.status(403).send("403 error! Information entered is incorrect, please try again.");
   }
   
-  if (password !== existingUser.password) { //if user exists but password does not match
+  if (!bcrypt.compareSync(password, existingUser.password)) { //if user exists but password does not match
     res.status(403).send("403 error! Information entered is incorrect, please try again.");
   } else {
     res.cookie("user_id", existingUser.id); //set cookie for login
@@ -132,7 +133,7 @@ app.post("/register", (req, res) => { //ADD NEW USER OBJECT TO THE USERDATABASE
     userDatabase[userId] = {
       id: userId,
       email,
-      password
+      password: bcrypt.hashSync(password, 10)
     }
     res.cookie("user_id", userId);
     res.redirect("/urls");
@@ -241,6 +242,7 @@ app.get("/urls/:id", (req, res) => {
     user: userDatabase[req.cookies["user_id"]]
   };
   res.render("urls_show", templateVars);
+
 });
 
 ///////////// /U/:ID /////////////
