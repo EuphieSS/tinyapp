@@ -50,22 +50,31 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const existingUser = findUserByEmail(email, userDatabase); //check if user already exist by email
+  
   if (!existingUser) {
     res.status(403).send("403 error! Information entered is incorrect, please try again.");
   }
+  
   if (password !== existingUser.password) { //if user exists but password does not match
     res.status(403).send("403 error! Information entered is incorrect, please try again.");
   } else {
     res.cookie("user_id", existingUser.id); //set cookie for login
     res.redirect("/urls");
   }
+
 });
 
 app.get("/login", (req, res) => { //DISPLAY A LOGIN FORM
+  if (req.cookies["user_id"]) {
+    res.redirect("/urls");
+    return;
+  }
+  
   const templateVars = {
     user: userDatabase[req.cookies["user_id"]]
   };
   res.render("urls_login", templateVars);
+
 });
 
 ///////////// /LOGOUT ROUTES /////////////
@@ -79,10 +88,16 @@ app.post("/logout", (req, res) => { //DELETE COOKIE ONCE LOGGED OUT
 ///////////// /REGISTER ROUTES /////////////
 
 app.get("/register", (req, res) => { //DISPLAY A REGISTRATION FORM
+  if (req.cookies["user_id"]) {
+    res.redirect("/urls");
+    return;
+  }
+  
   const templateVars = {
     user: userDatabase[req.cookies["user_id"]]
   };
   res.render("urls_registration", templateVars);
+
 });
 
 app.post("/register", (req, res) => { //ADD NEW USER OBJECT TO THE USERDATABASE
@@ -90,9 +105,11 @@ app.post("/register", (req, res) => { //ADD NEW USER OBJECT TO THE USERDATABASE
   const email = req.body.email;
   const password = req.body.password;
   const existingUser = findUserByEmail(email, userDatabase); //check if user already exist by email
+  
   if (email === "" || password === "") {
     res.status(400).send("400 error! Please ensure your information is correct.");
   }
+  
   if (existingUser) { //if user exists
     res.status(400).send("400 error! Invalid information, please try again.");
   } else {
@@ -104,33 +121,45 @@ app.post("/register", (req, res) => { //ADD NEW USER OBJECT TO THE USERDATABASE
     res.cookie("user_id", userId);
     res.redirect("/urls");
   }
+
 });
 
 ///////////// /URLS ROUTES /////////////
 
 app.post("/urls", (req, res) => { //GENERATE NEW SHORT URL
-  // console.log(req.body); // Log the POST request body to the console
+  if (!req.cookies["user_id"]) {
+    res.send("Pleas login first.");
+    return;
+  }
+
   const shortURL = generateRandomString(6); //generate a random 6 character long id
   urlDatabase[shortURL] = req.body.longURL; //add data submission (long URL) to urlDatabase
   const templateVars = { id: shortURL, longURL: urlDatabase[shortURL] };
   res.redirect(`/urls/${templateVars.id}`); //redirect client to a new page that shows the new short url created
+
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = {
-    urls: urlDatabase,
-    user: userDatabase[req.cookies["user_id"]]
-  };
-  res.render("urls_index", templateVars);
+    const templateVars = {
+      urls: urlDatabase,
+      user: userDatabase[req.cookies["user_id"]]
+    };
+    res.render("urls_index", templateVars);
 });
 
 ///////////// /URLS/NEW ROUTE /////////////
 
 app.get("/urls/new", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    res.redirect("/login");
+    return;
+  }
+  
   const templateVars = {
     user: userDatabase[req.cookies["user_id"]]
   };
   res.render("urls_new", templateVars);
+
 });
 
 ///////////// /URLS/:ID/DELETE ROUTE /////////////
@@ -160,8 +189,14 @@ app.get("/urls/:id", (req, res) => {
 ///////////// /U/:ID /////////////
 
 app.get("/u/:id", (req, res) => {
+  if (!urlDatabase[req.params.id]) {
+    res.send("Short URL Id does not exist.");
+    return;
+  }
+
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
+
 });
 
 // app.get("/", (req, res) => {
