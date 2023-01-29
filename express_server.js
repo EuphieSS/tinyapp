@@ -46,10 +46,19 @@ const findUserByEmail = (email, database) => {
 
 ///////////// /LOGIN ROUTES /////////////
 
-app.post("/login", (req, res) => { //SET COOKIE FOR LOGIN
-  console.log(req.body);
-  res.cookie("username", req.body.username);
-  res.redirect("/urls");
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const existingUser = findUserByEmail(email, userDatabase); //check if user already exist by email
+  if (!existingUser) {
+    res.status(403).send("403 error! Information entered is incorrect, please try again.");
+  }
+  if (password !== existingUser.password) { //if user exists but password does not match
+    res.status(403).send("403 error! Information entered is incorrect, please try again.");
+  } else {
+    res.cookie("user_id", existingUser.id); //set cookie for login
+    res.redirect("/urls");
+  }
 });
 
 app.get("/login", (req, res) => { //DISPLAY A LOGIN FORM
@@ -63,8 +72,8 @@ app.get("/login", (req, res) => { //DISPLAY A LOGIN FORM
 
 app.post("/logout", (req, res) => { //DELETE COOKIE ONCE LOGGED OUT
   console.log(req.body);
-  res.clearCookie("username", req.body.username);
-  res.redirect("/urls");
+  res.clearCookie("user_id", req.body.id);
+  res.redirect("/login");
 });
 
 ///////////// /REGISTER ROUTES /////////////
