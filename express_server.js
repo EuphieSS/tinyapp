@@ -47,6 +47,7 @@ app.post("/login", (req, res) => {
   
   if (!existingUser) {
     res.send("Information entered is incorrect, please try again.");
+    return;
   }
   
   if (!bcrypt.compareSync(password, existingUser.password)) { //if user exists but password does not match
@@ -101,6 +102,7 @@ app.post("/register", (req, res) => { //ADD NEW USER OBJECT TO THE USERDATABASE
   
   if (email === "" || password === "") {
     res.send("Please ensure your information is correct.");
+    return;
   }
   
   if (existingUser) { //if user exists
@@ -204,7 +206,6 @@ app.get("/urls/:id", (req, res) => {
     res.send("Please log in or register first.");
     return;
   }
-
   
   if (!urlDatabase[req.params.id]) { //check if requested url exists
     res.send("Sorry, invalid URL.");
