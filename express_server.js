@@ -74,7 +74,7 @@ app.get("/login", (req, res) => { //DISPLAY A LOGIN FORM
 ///////////// /LOGOUT ROUTES /////////////
 
 app.post("/logout", (req, res) => { //DELETE COOKIE ONCE LOGGED OUT
-  req.session.user_id = null;
+  req.session = null;
   res.redirect("/login");
 });
 
@@ -205,7 +205,13 @@ app.get("/urls/:id", (req, res) => {
     return;
   }
 
-  if (urlDatabase[req.params.id] === undefined) { //check if requested url is owned by user
+  
+  if (!urlDatabase[req.params.id]) { //check if requested url exists
+    res.send("Sorry, invalid URL.");
+    return;
+  }
+
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) { //check if requested url is owned by user
     res.send("Sorry, information not accessible.");
     return;
   }
